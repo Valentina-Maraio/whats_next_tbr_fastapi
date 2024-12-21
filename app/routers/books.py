@@ -9,10 +9,11 @@ router = APIRouter(
     tags=["books"],
 )
 
+
 def book_helper(book) -> dict:
     return {
-        "id": str(book["_id"]), 
-        "Book_Id": book["id"],  
+        "id": str(book["_id"]),
+        "Book_Id": book["id"],
         "Title": book["title"],
         "Author": book["author"],
         "ISBN": book.get("isbn", ""),
@@ -21,7 +22,7 @@ def book_helper(book) -> dict:
         "Average_Rating": book.get("average_rating", ""),
         "Publisher": book.get("publisher", ""),
         "Binding": book.get("binding", ""),
-        "Number_of_Pages": book.get("number_of_pages", ""),  
+        "Number_of_Pages": book.get("number_of_pages", ""),
         "Year_Published": book.get("year_published", ""),
         "Original_Publication_Year": book.get("original_publication_year", ""),
         "Data_Read": book.get("data_read", ""),
@@ -33,7 +34,8 @@ def book_helper(book) -> dict:
         "Read_Count": book.get("read_count", ""),
         "Owned_copies": book.get("owned_copies", ""),
     }
-    
+
+
 @router.get("/", response_model=List[Book])
 async def get_books():
     """Retrieve all books."""
@@ -49,12 +51,14 @@ async def get_book(book_id: str):
         return book_helper(book)
     raise HTTPException(status_code=404, detail="Book not found")
 
+
 @router.post("/", response_model=Book)
 async def create_book(book: Book):
     """Create a new book."""
     new_book = await books_collection.insert_one(book.dict())
     created_book = await books_collection.find_one({"_id": new_book.inserted_id})
     return book_helper(created_book)
+
 
 @router.put("/{book_id}", response_model=Book)
 async def update_book(book_id: str, updated_book: Book):
@@ -66,6 +70,7 @@ async def update_book(book_id: str, updated_book: Book):
         updated = await books_collection.find_one({"_id": ObjectId(book_id)})
         return book_helper(updated)
     raise HTTPException(status_code=404, detail="Book not found")
+
 
 @router.delete("/{book_id}", response_model=dict)
 async def delete_book(book_id: str):

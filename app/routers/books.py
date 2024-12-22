@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from app.database import books_collection
-from app.schemas import Book
+from app.schemas import Book, BookImport
 from bson import ObjectId
 from typing import List
 
@@ -9,6 +9,7 @@ router = APIRouter(
     tags=["books"],
 )
 
+# Helper to convert MongoDB document to Pydantic model
 def book_helper(book) -> dict:
     return {
         "id": str(book["_id"]), 
@@ -33,13 +34,12 @@ def book_helper(book) -> dict:
         "Read_Count": book.get("read_count", ""),
         "Owned_copies": book.get("owned_copies", ""),
     }
-    
+
 @router.get("/", response_model=List[Book])
 async def get_books():
     """Retrieve all books."""
     books = await books_collection.find().to_list(1000)
     return books
-
 
 @router.get("/{book_id}", response_model=Book)
 async def get_book(book_id: str):
@@ -74,3 +74,42 @@ async def delete_book(book_id: str):
     if result.deleted_count == 1:
         return {"message": "Book deleted successfully"}
     raise HTTPException(status_code=404, detail="Book not found")
+
+# Import books from a JSON array
+@router.post("/import", response_model=dict)
+async def import_books(data: List[BookImport]):
+    """Import books from a JSON array."""
+    imported_books = []
+    
+    # Iterate through each book data in the incoming list
+    for book_data in data:
+        # Map fields from BookImport to Book
+        book = Book(
+            id=str(book_data.Book_Id),  # MongoDB _id should be string
+            title=book_data.Title,
+            author=book_data.Author,
+            second_author=book_data.Second_Author,
+            my_rating=book_data.My_Rating,
+            publisher=book_data.Publisher,
+            binding=book_data.Binding,
+            num_pages=book_data.Number_of_Pages,
+            publication_year=book_data.Original_Publication_Year,
+            bookshelf=book_data.Bookshelf,
+            copies=book_data.Owned_Copies,
+            read=book_data.Exclusive_Shelf == "read",
+            
+        )
+
+        # Check if the book already exists in the MongoDB collection
+        existing_book = await books_collection.find_one({"id": book.id})
+        if existing_book:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Book with ID {book.id} already exists"
+            )
+        
+        # Insert the new book into MongoDB
+        await books_collection.insert_one(book.dict())
+        imported_books.append(book)
+
+    return {"message": f"{len(imported_books)} books imported successfully."}

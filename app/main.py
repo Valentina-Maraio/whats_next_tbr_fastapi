@@ -38,7 +38,7 @@ async def get_book_suggestions(request: SuggestionRequest):
     finally:
         print("BUON NATALE")
     
-    suggestions = response.choices[0].message.content.strip().split("\n")
+    suggestions = response.choices[0].message['content'].strip().split("\n")
     return {
         "author": request.author,
         "suggestions": suggestions

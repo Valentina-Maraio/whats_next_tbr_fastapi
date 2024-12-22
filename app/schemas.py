@@ -2,6 +2,12 @@ from pydantic import BaseModel
 from typing import Optional
 
 class Book(BaseModel):
+    id: Optional[str] = None  # MongoDB ObjectId as a string
+    title: str
+    author: str
+    read: bool = False
+
+class BookImport(BaseModel):
     Book_Id: str
     Title: str 
     Author: str
@@ -18,9 +24,9 @@ class Book(BaseModel):
     Original_Publication_Year: str
     Date_Read: Optional[str] = None
     Data_Added:  Optional[str] = None
-    Bookshelves:  Optional[str] = None
+    Bookshelf:  Optional[str] = None
     Bookshelves_w_positions:  Optional[str] = None
     Exclusive_Shelf:  Optional[str] = None
     My_Review: Optional[str] = None
     Read_Count:  Optional[str] = None
-    Owned_copies:  Optional[str] = None
+    Owned_Copies:  Optional[str] = None

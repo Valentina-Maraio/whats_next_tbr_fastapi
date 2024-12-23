@@ -5,3 +5,4 @@ pydantic
 pymongo
 python-decouple
 python-dotenv
+openai

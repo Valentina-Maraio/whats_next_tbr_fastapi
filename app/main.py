@@ -2,14 +2,19 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from app.database import books_collection
+from app.routers.books import router as books_router
+
 import traceback
 
 app = FastAPI()
 
+# Include the books router
+app.include_router(books_router)
+
 # Enable CORS for your Vue.js app
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:8080"],  # Adjust for your frontend's origin
+    allow_origins=["https://whats-next-vueapp.vercel.app/"],  # Adjust for your frontend's origin
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

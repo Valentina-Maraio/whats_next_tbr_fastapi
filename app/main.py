@@ -14,7 +14,7 @@ app.include_router(books_router)
 # Enable CORS for your Vue.js app
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:8080"],  # Adjust for your frontend's origin
+    allow_origins=["https://whats-next-vueapp.vercel.app/"],  # Adjust for your frontend's origin
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
